@@ -174,7 +174,8 @@ export default async (request: Request, context: Context) => {
   // 402 from AgentPay
   const headers: any = {};
   payResp.headers.forEach((value, key) => {
-    headers[key] = value;
+    const headerKey = key.startsWith("x-agentpay-") ? key.slice(11) : key;
+    headers[headerKey] = value;
   });
 
   return new Response(
@@ -185,7 +186,7 @@ export default async (request: Request, context: Context) => {
       paymentUrl: `${AGENTPAY_BASE_URL}/register`,
       price: headers["x-agentpay-crawler-price"],
     }),
-    { status: 402, headers: failureHeaders },
+    { status: 402, headers: headers },
   );
 };
 
