@@ -1,19 +1,22 @@
 import type { Context } from "@netlify/edge-functions"
 
 /**
- * CONFIGURATION
+ * USER CONFIGURATION - PLEASE UPDATE
  */
 const TOLL_ID = "toll_ikaybhoeg7"
 
-
 // Paths to protect
 const PROTECTED_PATHS = [
-  "/posts/example-post-1",
+  "/example-protected-path",
+  "/another-example-protected-path",
   "/"
 ]
+/**
+ * END USER CONFIGURATION
+ */
 
 /**
- * DO NOT TOUCH
+ * AGENTPAY CONFIGURATION - DO NOT MODIFY
  */
 
 const AGENTPAY_BASE_URL = "https://agentpay.vercelapp.stripe.dev"
@@ -91,24 +94,19 @@ const isAIBot = (headers: Headers) => {
     headers.has("crawler-exact-price") ||
     headers.has("crawler-max-price")
 
-  console.log(aiUserAgent, aiSigHeadersPresent, agentPayPriceHeadersPresent)
-
   return aiUserAgent || aiSigHeadersPresent || agentPayPriceHeadersPresent
 }
 
 export default async (request: Request, context: Context) => {
-  console.log("In request!")
   const url = new URL(request.url)
 
   /* 1) Public / un-protected routes -> straight through */
   if (!isProtectedPath(url.pathname)) {
-    console.log("Not protected path, going through")
     return context.next()
   }
 
   /* 2) Non-AI callers -> straight through */
   if (!isAIBot(request.headers)) {
-    console.log("Not AI Bot, going through")
     return context.next()
   }
 
@@ -121,7 +119,6 @@ export default async (request: Request, context: Context) => {
   if (
     !hasSigHeaders
   ) {
-    console.log("Blocked bot but no sig headers, 402")
     // Our middleware sends back a 402 if the crawler doesn't have the right headers
     return new Response(
       JSON.stringify({
@@ -165,8 +162,6 @@ export default async (request: Request, context: Context) => {
 
   /* 6) Handle AgentPay response -------------------------------------- */
   if (payResp.ok) {
-    console.log("Agentpay response is good")
-    console.log(payResp)
     const resp = await context.next()
 
     // Mirror useful headers back to caller
@@ -184,8 +179,6 @@ export default async (request: Request, context: Context) => {
     const headerKey = key.startsWith("x-agentpay-") ? key.slice(11) : key;
     headers[headerKey] = value;
   });
-
-  console.log("Payment required from crawler")
 
   return new Response(
     JSON.stringify({
