@@ -8,7 +8,6 @@ const TOLL_ID = "toll_ikaybhoeg7"
 
 // Paths to protect
 const PROTECTED_PATHS = [
-  "/example-route/*",
   "/posts/example-post-1",
   "/"
 ]
@@ -98,6 +97,7 @@ const isAIBot = (headers: Headers) => {
 }
 
 export default async (request: Request, context: Context) => {
+  console.log("In request!")
   const url = new URL(request.url)
 
   /* 1) Public / un-protected routes -> straight through */
