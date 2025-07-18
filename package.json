@@ -33,7 +33,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rehype-unwrap-images": "^1.0.0",
-    "remark-gfm": "^4.0.0"
+    "remark-gfm": "^4.0.0",
+    "netlify": "^2.26.3"
   },
   "devDependencies": {
     "@stackbit/cms-git": "^1.0.32",
